@@ -13,7 +13,7 @@
   "https://discord.com/api/v9")
 
 (def discord-bot-token
-  "MzU2ODc2NTIxODI4NTE1ODQx.WbbdKQ.oO4PQeOoqE00yFEFRpzy9_0-evU")
+  "")
 
 (def http-headers
   {"User-Agent" "DiscordBot www.pupy.bark, v1"
