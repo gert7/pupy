@@ -5,18 +5,10 @@
    [pupy.blackjack :as blackjack]
    [pupy.sigma :as sigma]
    [aleph.http :as http]
-   [manifold.deferred :as d]
    [manifold.stream :as s]
-   [clojure.math.numeric-tower :as math]
-   [byte-streams :as bs]
-   [clojure.data.json :as json]
-   [clojure.java.io :as io]
-   [clojure.data.csv :as csv]
    [clojure.string :as string]
    [tupelo.core :refer [spy]]
    ; [opennlp.pprint :as pprint]
-   [opennlp.nlp :as nlp]
-   [opennlp.treebank :as treebank]
    [clojure.core.async :as a
     :refer [>! <! >!! <!! go go-loop chan buffer
             close! thread alt! alt!! alts! alts!! timeout]])
@@ -27,13 +19,13 @@
 (def discord-websocket-uri
   "wss://gateway.discord.gg/?v=9&encoding=json")
 
-(def get-sentences (nlp/make-sentence-detector "models/en-sent.bin"))
-(def tokenize (nlp/make-tokenizer "models/en-token.bin"))
+; (def get-sentences (nlp/make-sentence-detector "models/en-sent.bin"))
+; (def tokenize (nlp/make-tokenizer "models/en-token.bin"))
 ; (def detokenize (nlp/make-detokenizer "models/english-detokenizer.xml"))
-(def pos-tag (nlp/make-pos-tagger "models/en-pos-perceptron.bin"))
-(def name-find (nlp/make-name-finder "models/en-ner-person.bin"))
-(def date-find (nlp/make-name-finder "models/en-ner-time.bin"))
-(def chunker (treebank/make-treebank-chunker "models/en-chunker.bin"))
+; (def pos-tag (nlp/make-pos-tagger "models/en-pos-perceptron.bin"))
+; (def name-find (nlp/make-name-finder "models/en-ner-person.bin"))
+; (def date-find (nlp/make-name-finder "models/en-ner-time.bin"))
+; (def chunker (treebank/make-treebank-chunker "models/en-chunker.bin"))
 
 (defn opcode-10
   [client]
@@ -75,19 +67,19 @@
   [_ _]
   (if (> (rand) 0.95) ":b:ark!" "Bark!"))
 
-(defn pupy-chunk
-  [cont _]
-  (if (< (count cont) 1)
-    "String too short!"
-    (pr-str (chunker (pos-tag (tokenize cont))))))
+; (defn pupy-chunk
+;   [cont _]
+;   (if (< (count cont) 1)
+;     "String too short!"
+;     (pr-str (chunker (pos-tag (tokenize cont))))))
 
-(defn pupy-name
-  [cont _]
-  (pr-str (name-find (tokenize cont))))
+; (defn pupy-name
+;   [cont _]
+;   (pr-str (name-find (tokenize cont))))
 
-(defn pupy-date
-  [cont _]
-  (pr-str (date-find (tokenize cont))))
+; (defn pupy-date
+;   [cont _]
+;   (pr-str (date-find (tokenize cont))))
 
 (defn pupy-reboot
   [_ dup]
@@ -114,17 +106,17 @@
                       :text true
                       :desc "Bark or 5% chance of ultra rare secret bark."
                       :exact true}
-              "chunk" {:f pupy-chunk
-                       :text true
-                       :desc "Splits parts of a sentence up into
-                   grammatical components."}
-              "names" {:f pupy-name
-                       :text true
-                       :desc "Tries to find people's names in noun phrase position
-                   a sentence."}
-              "times" {:f pupy-date
-                       :text true
-                       :desc "Tells you about breakfast."}
+              ; "chunk" {:f pupy-chunk
+              ;          :text true
+              ;          :desc "Splits parts of a sentence up into
+              ;      grammatical components."}
+              ; "names" {:f pupy-name
+              ;          :text true
+              ;          :desc "Tries to find people's names in noun phrase position
+              ;      a sentence."}
+              ; "times" {:f pupy-date
+              ;          :text true
+              ;          :desc "Tells you about breakfast."}
               "reboot" {:f pupy-reboot
                         :text false
                         :desc "Shuts down pupy and reboots him after 3 seconds."}
@@ -154,7 +146,6 @@
 (def command-not-found
   "Command not found!")
 
-(declare manage-discord-loop)
 
 ; TODO get this to work
 (defn channeled-command-discord
@@ -169,6 +160,8 @@
         (do (pload/send-message (dup :cid) msg)
             (recur (<!! ch)))
         nil))))
+
+(declare manage-discord-loop)
 
 (defn call-command
   [cont dup mode]
@@ -303,6 +296,7 @@
 
 (defn start-ws-client
   [uri]
+  (print "start-ws-client")
   (let [client
         @(http/websocket-client uri)
         client-chan (chan)
@@ -319,7 +313,9 @@
 
 (defn start-discord
   []
+  (println "start-discord")
   (go-loop [dchan (start-ws-client discord-websocket-uri)]
+    (println "inner")
     (alt!
       dchan ([] (<! (timeout 3000))
                 (recur (start-ws-client discord-websocket-uri)))

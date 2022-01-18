@@ -13,7 +13,9 @@
   "https://discord.com/api/v9")
 
 (def discord-bot-token
-  "")
+  (slurp "discord-bot-token.txt"))
+
+(print discord-bot-token)
 
 (def http-headers
   {"User-Agent" "DiscordBot www.pupy.bark, v1"
