@@ -12,3 +12,7 @@ pom.xml.asc
 .hgignore
 .hg/
 /models
+discord-bot-token.txt
+/.clj-kondo
+/.lsp
+/.calva
