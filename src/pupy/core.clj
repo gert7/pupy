@@ -38,7 +38,7 @@
 (defn pupy-eval
   [cont _]
   (try
-    (eval (read-string cont))
+    (.toString (eval (read-string cont)))
     (catch Exception e (str "Caught exception: " (.getMessage e)))))
 
 (defn eval-format
@@ -127,7 +127,7 @@
               "eval" {:f pupy-eval
                       :text true
                       :desc "Evaluates Clojure."
-                      :enabled false}
+                      :enabled true}
               "block" {:f pupy-block-forever
                        :text false
                        :desc "Blocks forever."
